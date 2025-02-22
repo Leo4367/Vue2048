@@ -81,11 +81,18 @@ export class CustomNodeTS extends BasicScriptNode {
 
     @output()
     score: number;
+
     private direction: string = '';
     private board: number[][] = [];
+    private isInitialized: boolean = false;
 
 
     execute() {
+
+        if (!this.isInitialized) {
+            this.initializeBoard();
+            this.isInitialized = true;
+        }
         // 1. 将输入的 t1-t16 转换为二维数组
         this.syncInputToBoard();
 
@@ -103,6 +110,24 @@ export class CustomNodeTS extends BasicScriptNode {
         // 5. 清空方向状态（可选）
         this.dirup = this.dirdown = this.dirright = this.dirleft = false;
 
+    }
+
+    private initializeBoard() {
+        // 将所有格子设为0
+        for (let i = 1; i <= 16; i++) {
+            (this as any)[`t${i}`] = 0; // 使用类型断言解决TS类型检查
+        }
+
+        // 随机生成两个不同的位置
+        const positions = new Set<number>();
+        while (positions.size < 2) {
+            positions.add(Math.floor(Math.random() * 16) + 1); // 生成1-16的随机数
+        }
+
+        // 设置这两个位置为2
+        positions.forEach(pos => {
+            (this as any)[`t${pos}`] = 2;
+        });
     }
 
     // 将输入的 t1-t16 转换为二维数组
